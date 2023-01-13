@@ -204,7 +204,7 @@ export default {
         'faTimesCircle',
         'faTrashAlt',
         'faMap',
-        'faPlusSquare',
+        'faSquarePlus'
       ],
       light: [],
       duotone: [],
