@@ -50,7 +50,7 @@
                   class="btn btn-sm btn-primary text-center align-middle"
                 >
                   <fa-icon
-                    :icon="['far', 'square-plus']"
+                    icon="square-plus"
                     class="icon-menu w-4 h-4 stroke-current"
                   />
                   <fa-icon

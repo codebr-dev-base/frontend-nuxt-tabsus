@@ -193,18 +193,18 @@ export default {
         'faSignInAlt',
         'faEllipsisH',
         'faDatabase',
-        'faSearch',
+        'faMagnifyingGlass',
         'faChartPie',
         'faFilter',
         'faTimes',
         'faChevronRight',
+        'faSquarePlus'
       ],
       regular: [
         'faEye',
         'faTimesCircle',
         'faTrashAlt',
-        'faMap',
-        'faSquarePlus'
+        'faMap'
       ],
       light: [],
       duotone: [],

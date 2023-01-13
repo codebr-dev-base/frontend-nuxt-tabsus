@@ -12,7 +12,7 @@
           />
           <span>
             <a @click="getRows">
-              <fa-icon icon="search" />
+              <fa-icon icon="magnifying-glass" />
             </a>
           </span>
         </label>

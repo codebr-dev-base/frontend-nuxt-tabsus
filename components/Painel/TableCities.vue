@@ -45,7 +45,7 @@
             <button
               class="absolute top-0 right-0 rounded-l-none btn btn-primary"
             >
-              <fa-icon icon="search" class="icon-menu" />
+              <fa-icon icon="magnifying-glass" class="icon-menu" />
             </button>
           </div>
         </div>
