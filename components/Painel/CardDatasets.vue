@@ -117,6 +117,7 @@ export default {
     for (let index = 0; index < 3; index++) {
       this.checkedDatasets.push(this.rows[index].id);
     }
+    this.$emit('loadend');
   },
   computed: {
     rowsSorted() {
@@ -175,6 +176,7 @@ export default {
       for (let index = 0; index < 3; index++) {
         this.checkedDatasets.push(this.rows[index].id);
       }
+      this.$emit('loadend');
     },
   },
 };

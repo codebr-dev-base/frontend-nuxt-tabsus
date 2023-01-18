@@ -243,7 +243,7 @@ export default {
 </script>
 <style lang="postcss" scoped>
 .card-collapse {
-  @apply collapse w-full border rounded-box border-base-300 collapse-arrow;
+  @apply w-full border rounded-box border-base-300 collapse-arrow;
 }
 
 .navbar-cids {

@@ -232,6 +232,7 @@ export default {
         },
       });
       this.$emit('change', result.data.data);
+      this.$emit('loadend');
     },
   },
 };

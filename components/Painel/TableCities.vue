@@ -259,7 +259,7 @@ export default {
 </script>
 <style lang="postcss" scoped>
 .container-table {
-  height: 68vh;
+  max-height: 64vh;
 }
 
 td {

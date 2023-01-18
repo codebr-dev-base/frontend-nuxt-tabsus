@@ -191,6 +191,7 @@ export default {
           text: `${this.title} ${this.locationName}`,
         },
       });
+      this.$emit('loadend');
     },
   },
 };

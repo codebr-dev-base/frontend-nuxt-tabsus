@@ -1,147 +1,155 @@
 <template>
-  <div class="drawer drawer-end">
-    <input id="filter-drawer" type="checkbox" class="drawer-toggle" />
-    <div class="drawer-content">
-      <div>
-        <PainelNavbar
-          :location="initial"
-          :locations="locations"
-          @changeLocation="changeLocationState"
-        >
-          <template #end>
-            <label for="filter-drawer" class="btn btn-ghost drawer-button">
-              <fa-icon icon="filter" class="icon-menu" />
-            </label>
-          </template>
-        </PainelNavbar>
-        <div class="grid grid-cols-1 gap-1 md:grid-cols-3 md:gap-3">
-          <div>
-            <PainelCardDatasets
-              ref="cardDatasets"
-              :title.sync="locationName"
-              :url.sync="url"
-              sort="year"
-              system="sih"
-              :params.sync="paramsDatasets"
-              @checked="changeDatasets"
-            ></PainelCardDatasets>
-          </div>
+  <Overlay :show="loading">
+    <div class="drawer drawer-end">
+      <input id="filter-drawer" type="checkbox" class="drawer-toggle" />
+      <div class="drawer-content">
+        <div>
+          <LazyPainelNavbar
+            :location="initial"
+            :locations="locations"
+            @changeLocation="changeLocationState"
+          >
+            <template #end>
+              <label for="filter-drawer" class="btn btn-ghost drawer-button">
+                <fa-icon icon="filter" class="icon-menu" />
+              </label>
+            </template>
+          </LazyPainelNavbar>
+          <div class="grid grid-cols-1 gap-1 md:grid-cols-3 md:gap-3">
+            <div>
+              <LazyPainelCardDatasets
+                ref="cardDatasets"
+                :title.sync="locationName"
+                :url.sync="url"
+                sort="year"
+                system="sih"
+                :params.sync="paramsDatasets"
+                @checked="changeDatasets"
+                @loadend="incrementLoad"
+              ></LazyPainelCardDatasets>
+            </div>
 
-          <div class="col-span-2">
-            <client-only>
-              <PainelBarChartSihDataset
-                title="AIH Aprovadas e Rejeitadas"
-                :datasets.sync="checkedDatasets"
-                :location-name.sync="locationName"
-              ></PainelBarChartSihDataset>
-            </client-only>
+            <div class="col-span-2">
+              <client-only>
+                <LazyPainelBarChartSihDataset
+                  title="AIH Aprovadas e Rejeitadas"
+                  :datasets.sync="checkedDatasets"
+                  :location-name.sync="locationName"
+                ></LazyPainelBarChartSihDataset>
+              </client-only>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-1">
+            <div>
+              <client-only>
+                <LazyPainelBarChartSihValues
+                  ref="serieByValues"
+                  title="Valor das AIH Aprovadas e Rejeitadas"
+                  :datasets.sync="checkedDatasets"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieByValTot"
+                  :url.sync="urlSerie"
+                  @loadend="incrementLoad"
+                ></LazyPainelBarChartSihValues>
+              </client-only>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+            <div>
+              <client-only>
+                <LazyPainelBarChartDataset
+                  title="Quantidade total de AIH "
+                  :datasets.sync="checkedDatasets"
+                  :location-name.sync="locationName"
+                ></LazyPainelBarChartDataset>
+              </client-only>
+            </div>
+            <div>
+              <client-only>
+                <LazyPainelLineChart
+                  ref="serieByMonth"
+                  title="AIH por mês: "
+                  :datasets.sync="checkedDatasets"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieByMonth"
+                  :url.sync="urlSerie"
+                  @loadend="incrementLoad"
+                ></LazyPainelLineChart>
+              </client-only>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+            <div>
+              <client-only>
+                <LazyPainelLineChart
+                  ref="seriePermanenceByMonth"
+                  title="Diárias de AIH por mês: "
+                  :datasets.sync="checkedDatasets"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSeriePermanenceByMonth"
+                  :url.sync="urlSerie"
+                  operation="sum"
+                  @loadend="incrementLoad"
+                ></LazyPainelLineChart>
+              </client-only>
+            </div>
+            <div>
+              <client-only>
+                <LazyPainelLineChart
+                  ref="serieUtiByMonth"
+                  title="Diárias de UTI por mês: "
+                  :datasets.sync="checkedDatasets"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieUtiByMonth"
+                  :url.sync="urlSerie"
+                  operation="sum"
+                  @loadend="incrementLoad"
+                ></LazyPainelLineChart>
+              </client-only>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-1">
+            <div>
+              <client-only>
+                <LazyPainelLineChart
+                  ref="serieDeathByMonth"
+                  title="Óbitos por mês: "
+                  :datasets.sync="checkedDatasets"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieDeathByMonth"
+                  :url.sync="urlSerie"
+                  operation="sum"
+                  @loadend="incrementLoad"
+                ></LazyPainelLineChart>
+              </client-only>
+            </div>
           </div>
         </div>
-        <div class="grid grid-cols-1 gap-1">
-          <div>
-            <client-only>
-              <PainelBarChartSihValues
-                ref="serieByValues"
-                title="Valor das AIH Aprovadas e Rejeitadas"
-                :datasets.sync="checkedDatasets"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieByValTot"
-                :url.sync="urlSerie"
-              ></PainelBarChartSihValues>
-            </client-only>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-          <div>
-            <client-only>
-              <PainelBarChartDataset
-                title="Quantidade total de AIH "
-                :datasets.sync="checkedDatasets"
-                :location-name.sync="locationName"
-              ></PainelBarChartDataset>
-            </client-only>
-          </div>
-          <div>
-            <client-only>
-              <PainelLineChart
-                ref="serieByMonth"
-                title="AIH por mês: "
-                :datasets.sync="checkedDatasets"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieByMonth"
-                :url.sync="urlSerie"
-              ></PainelLineChart>
-            </client-only>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-          <div>
-            <client-only>
-              <PainelLineChart
-                ref="seriePermanenceByMonth"
-                title="Diárias de AIH por mês: "
-                :datasets.sync="checkedDatasets"
-                :location-name.sync="locationName"
-                :params.sync="paramsSeriePermanenceByMonth"
-                :url.sync="urlSerie"
-                operation="sum"
-              ></PainelLineChart>
-            </client-only>
-          </div>
-          <div>
-            <client-only>
-              <PainelLineChart
-                ref="serieUtiByMonth"
-                title="Diárias de UTI por mês: "
-                :datasets.sync="checkedDatasets"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieUtiByMonth"
-                :url.sync="urlSerie"
-                operation="sum"
-              ></PainelLineChart>
-            </client-only>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-1">
-          <div>
-            <client-only>
-              <PainelLineChart
-                ref="serieDeathByMonth"
-                title="Óbitos por mês: "
-                :datasets.sync="checkedDatasets"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieDeathByMonth"
-                :url.sync="urlSerie"
-                operation="sum"
-              ></PainelLineChart>
-            </client-only>
+      </div>
+      <div class="drawer-side">
+        <label for="filter-drawer" class="drawer-overlay"></label>
+        <div
+          class="card text-center shadow-2xl w-11/12 menu overflow-y-auto bg-base-100 text-base-content p-1"
+        >
+          <div class="card-body grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+            <LazyPainelTableCities
+              ref="tableCities"
+              :initial.sync="initial"
+              :name.sync="name"
+              painel="sih"
+              :options-scope-location.sync="optionsScopeLocation"
+              @changeLocation="changeLocationFilter"
+            ></LazyPainelTableCities>
+            <LazyPainelCardCids
+              :loading.sync="loading"
+              store="sih"
+              @update="setAllFilters"
+            ></LazyPainelCardCids>
           </div>
         </div>
       </div>
     </div>
-    <div class="drawer-side">
-      <label for="filter-drawer" class="drawer-overlay"></label>
-      <div
-        class="card text-center shadow-2xl w-11/12 menu overflow-y-auto bg-base-100 text-base-content p-1"
-      >
-        <div class="card-body grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-          <PainelTableCities
-            ref="tableCities"
-            :initial.sync="initial"
-            :name.sync="name"
-            painel="sih"
-            :options-scope-location.sync="optionsScopeLocation"
-            @changeLocation="changeLocationFilter"
-          ></PainelTableCities>
-          <PainelCardCids
-            :loading.sync="loading"
-            store="sih"
-            @update="setAllFilters"
-          ></PainelCardCids>
-        </div>
-      </div>
-    </div>
-  </div>
+  </Overlay>
 </template>
 <script>
 import filters from '@/mixins/filters';
@@ -169,7 +177,6 @@ export default {
         { name: 'Residêntes', value: 'munic_res' },
         { name: 'Ocorrência', value: 'munic_mov' },
       ],
-      loading: false,
       urlBase: `v1/dataset/datasus/sih/`,
       urlBaseSerie: `v1/dataset/serie/datasus/sih/`,
       urlBaseSerieRange: `v1/dataset/serie/range/datasus/sih/`,
@@ -231,6 +238,9 @@ export default {
         per_page: 12,
         page: 1,
       },
+      loading: true,
+      countLoading: 0,
+      limitLoading: 3,
     };
   },
   computed: {},
@@ -294,11 +304,22 @@ export default {
     setAllFilters() {
       this.paramsDatasets = { ...this.setFilters(this.paramsDatasets) };
       this.paramsSerieByMonth = this.setFilters(this.paramsSerieByMonth);
-      this.paramsSeriePermanenceByMonth = this.setFilters(this.paramsSeriePermanenceByMonth);
+      this.paramsSeriePermanenceByMonth = this.setFilters(
+        this.paramsSeriePermanenceByMonth
+      );
       this.paramsSerieUtiByMonth = this.setFilters(this.paramsSerieUtiByMonth);
-      this.paramsSerieDeathByMonth = this.setFilters(this.paramsSerieDeathByMonth);
+      this.paramsSerieDeathByMonth = this.setFilters(
+        this.paramsSerieDeathByMonth
+      );
       this.paramsSerieByValTot = this.setFilters(this.paramsSerieByValTot);
     },
+    incrementLoad() {
+      this.countLoading++;
+      if (this.countLoading === this.limitLoading) {
+        this.countLoading = 0;
+        this.loading = false;
+      }
+    }
   },
 };
 </script>

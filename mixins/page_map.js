@@ -26,6 +26,8 @@ export default {
             ibge_id_short: map.ibge_id_short,
             ibge_id: map.ibge_id,
             populations: map.populations,
+            count: 0,
+            incidence: 0
           },
         });
       }
@@ -50,6 +52,7 @@ export default {
       }
 
       this.occurrences = [...occurrences];
+      this.loadMap = false;
     },
   },
 };

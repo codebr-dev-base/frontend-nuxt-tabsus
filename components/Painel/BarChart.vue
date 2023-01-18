@@ -150,6 +150,7 @@ export default {
       this.localParams = { ...this.params };
       await this.getSerie(this.url, this.localParams);
     }
+    this.$emit('loadend');
   },
   watch: {
     deep: true,
@@ -214,6 +215,7 @@ export default {
         },
       });
       this.$emit('change', result.data.data);
+      this.$emit('loadend');
     },
   },
 };

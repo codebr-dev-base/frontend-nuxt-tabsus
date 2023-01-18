@@ -1,69 +1,78 @@
 <template>
-  <div class="content">
-    <div>
-      <PainelNavbar :location="initial">
-        <template #start>
-          {{ locationName }}
-        </template>
-        <template #end>
-          <NuxtLink
-            :to="`/panels/${module}/map/${id}`"
-            class="btn btn-sm btn-secondary text-center align-middle"
+  <Overlay :show="loading">
+    <div class="content">
+      <div>
+        <LazyPainelNavbar :location="initial">
+          <template #start>
+            {{ locationName }}
+          </template>
+          <template #end>
+            <NuxtLink
+              :to="`/panels/${module}/map/${id}`"
+              class="btn btn-sm btn-secondary text-center align-middle"
+            >
+              <fa-icon
+                :icon="['far', 'map']"
+                class="icon-menu w-4 h-4 stroke-current"
+              />
+            </NuxtLink>
+          </template>
+        </LazyPainelNavbar>
+        <div class="grid grid-cols-1 gap-1">
+          <div>
+            <client-only>
+              <LazyPainelBarChartPaginate
+                title="Número AIH com pagamento recusado"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsRejectedCount"
+                :url.sync="urlSerie"
+                @loadend="incrementLoad"
+              ></LazyPainelBarChartPaginate>
+            </client-only>
+          </div>
+        </div>
+        <div class="flex">
+          <div class="grow m-2" :class="{ 'w-1/2': showTable }">
+            <client-only>
+              <LazyPainelDataTable
+                title="Unidades AIH com pagamento recusado"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsRejectedTable"
+                :url.sync="urlTable"
+                :headers.sync="headersRejectedTable"
+                :columns="columnsRejectedTable"
+                key-columns="cnes"
+                per-page="12"
+                @select="onSelect"
+                @loadend="incrementLoad"
+              ></LazyPainelDataTable>
+            </client-only>
+          </div>
+          <div
+            v-show="showTable"
+            class="grow m-2"
+            :class="{ 'w-1/2': showTable }"
           >
-            <fa-icon
-              :icon="['far', 'map']"
-              class="icon-menu w-4 h-4 stroke-current"
-            />
-          </NuxtLink>
-        </template>
-      </PainelNavbar>
-      <div class="grid grid-cols-1 gap-1">
-        <div>
-          <client-only>
-            <PainelBarChartPaginate
-              title="Número AIH com pagamento recusado"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsRejectedCount"
-              :url.sync="urlSerie"
-            ></PainelBarChartPaginate>
-          </client-only>
-        </div>
-      </div>
-      <div class="flex">
-        <div class="grow m-2" :class="{'w-1/2' : showTable}">
-          <client-only>
-            <PainelDataTable
-              title="Unidades AIH com pagamento recusado"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsRejectedTable"
-              :url.sync="urlTable"
-              :headers.sync="headersRejectedTable"
-              :columns="columnsRejectedTable"
-              key-columns="cnes"
-              per-page="12"
-              @select="onSelect"
-            ></PainelDataTable>
-          </client-only>
-        </div>
-        <div v-show="showTable" class="grow m-2" :class="{'w-1/2' : showTable}">
-          <client-only>
-            <PainelDataTable
-              :title="healthUnit"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsRejectedUnitTable"
-              :url.sync="urlTable"
-              :headers.sync="headersRejectedUnitTable"
-              :columns="columnsRejectedUnitTable"
-              key-columns="n_aih"
-            ></PainelDataTable>
-          </client-only>
+            <client-only>
+              <LazyPainelDataTable
+                :title="healthUnit"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsRejectedUnitTable"
+                :url.sync="urlTable"
+                :headers.sync="headersRejectedUnitTable"
+                :columns="columnsRejectedUnitTable"
+                key-columns="n_aih"
+                @loadend="incrementLoad"
+              ></LazyPainelDataTable>
+            </client-only>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </Overlay>
 </template>
 <script>
 import filters from '@/mixins/filters';
@@ -99,7 +108,7 @@ export default {
       paramsRejectedCount: {
         per: 'cnes',
         operation: 'count',
-        rating: 'co_erro'
+        rating: 'co_erro',
       },
       paramsRejectedTable: {
         per: 'cnes',
@@ -117,7 +126,7 @@ export default {
       paramsRejectedUnitTable: {
         per: 'cnes',
         columns: ['n_aih', 'mes_cmpt', 'co_erro', 'val_tot', 'description'],
-        per_page: 5
+        per_page: 5,
       },
       headersRejectedUnitTable: ['AIH', 'Mês', 'Código', 'Valor', 'Descrição'],
       columnsRejectedUnitTable: [
@@ -128,7 +137,10 @@ export default {
         'description',
       ],
       showTable: false,
-      healthUnit: null
+      healthUnit: null,
+      loading: true,
+      countLoading: 0,
+      limitLoading: 1,
     };
   },
   async fetch() {
@@ -185,12 +197,19 @@ export default {
       }
     },
     onSelect(item) {
-      const params = {...this.paramsRejectedUnitTable};
+      const params = { ...this.paramsRejectedUnitTable };
       this.healthUnit = item.alias_company_name;
-      params.column_filter = ["cnes"];
+      params.column_filter = ['cnes'];
       params.term_filter = [item.cnes];
-      this.paramsRejectedUnitTable = {...params};
+      this.paramsRejectedUnitTable = { ...params };
       this.showTable = true;
+    },
+    incrementLoad() {
+      this.countLoading++;
+      if (this.countLoading === this.limitLoading) {
+        this.countLoading = 0;
+        this.loading = false;
+      }
     },
   },
 };

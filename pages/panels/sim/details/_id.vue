@@ -1,125 +1,135 @@
 <template>
-  <div class="content">
-    <div>
-      <PainelNavbar :location="initial">
-        <template #start>
-          {{ locationName }}
-        </template>
-        <template #end>
-          <NuxtLink
-            :to="`/panels/${module}/map/${id}`"
-            class="btn btn-sm btn-secondary text-center align-middle"
-          >
-            <fa-icon
-              :icon="['far', 'map']"
-              class="icon-menu w-4 h-4 stroke-current"
-            />
-          </NuxtLink>
-        </template>
-      </PainelNavbar>
-      <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-        <div>
-          <client-only>
-            <PainelBarChartPaginate
-              title="Óbitos por unidade"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsHealthUnits"
-              :url.sync="urlSerie"
-            ></PainelBarChartPaginate>
-          </client-only>
+  <Overlay :show="loading">
+    <div class="content">
+      <div>
+        <LazyPainelNavbar :location="initial">
+          <template #start>
+            {{ locationName }}
+          </template>
+          <template #end>
+            <NuxtLink
+              :to="`/panels/${module}/map/${id}`"
+              class="btn btn-sm btn-secondary text-center align-middle"
+            >
+              <fa-icon
+                :icon="['far', 'map']"
+                class="icon-menu w-4 h-4 stroke-current"
+              />
+            </NuxtLink>
+          </template>
+        </LazyPainelNavbar>
+        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+          <div>
+            <client-only>
+              <LazyPainelBarChartPaginate
+                title="Óbitos por unidade"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsHealthUnits"
+                :url.sync="urlSerie"
+                @loadend="incrementLoad"
+              ></LazyPainelBarChartPaginate>
+            </client-only>
+          </div>
+          <div>
+            <client-only>
+              <LazyPainelBarChartAgePyramid
+                title="Pirâmide etária"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieByIdade"
+                :url.sync="urlSerieRange"
+                @loadend="incrementLoad"
+              ></LazyPainelBarChartAgePyramid>
+            </client-only>
+          </div>
         </div>
-        <div>
-          <client-only>
-            <PainelBarChartAgePyramid
-              title="Pirâmide etária"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieByIdade"
-              :url.sync="urlSerieRange"
-            ></PainelBarChartAgePyramid>
-          </client-only>
+        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+          <div>
+            <client-only>
+              <LazyPainelBarChartPaginate
+                title="Óbitos por causa base"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieByCid"
+                :url.sync="urlSerie"
+                @change="changeCids"
+                @loadend="incrementLoad"
+              ></LazyPainelBarChartPaginate>
+            </client-only>
+          </div>
+          <div>
+            <client-only>
+              <LazyPainelLineChartGrouped
+                title="Óbitos por causa base"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieByCidGrouped"
+                :url.sync="urlSerie"
+                :grouped="groupedCids"
+                @loadend="incrementLoad"
+              ></LazyPainelLineChartGrouped>
+            </client-only>
+          </div>
         </div>
-      </div>
-      <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-        <div>
-          <client-only>
-            <PainelBarChartPaginate
-              title="Óbitos por causa base"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieByCid"
-              :url.sync="urlSerie"
-              @change="changeCids"
-            ></PainelBarChartPaginate>
-          </client-only>
+        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+          <div>
+            <client-only>
+              <LazyPainelBarChartPaginate
+                title="Óbitos por causa base DNC"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieByCidDnc"
+                :url.sync="urlSerie"
+                @change="changeCidsDnc"
+                @loadend="incrementLoad"
+              ></LazyPainelBarChartPaginate>
+            </client-only>
+          </div>
+          <div>
+            <client-only>
+              <LazyPainelLineChartGrouped
+                title="Óbitos por causa base DNC"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieByCidDncGrouped"
+                :url.sync="urlSerie"
+                :grouped="groupedCidsDnc"
+                @loadend="incrementLoad"
+              ></LazyPainelLineChartGrouped>
+            </client-only>
+          </div>
         </div>
-        <div>
-          <client-only>
-            <PainelLineChartGrouped
-              title="Óbitos por causa base"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieByCidGrouped"
-              :url.sync="urlSerie"
-              :grouped="groupedCids"
-            ></PainelLineChartGrouped>
-          </client-only>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-        <div>
-          <client-only>
-            <PainelBarChartPaginate
-              title="Óbitos por causa base DNC"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieByCidDnc"
-              :url.sync="urlSerie"
-              @change="changeCidsDnc"
-            ></PainelBarChartPaginate>
-          </client-only>
-        </div>
-        <div>
-          <client-only>
-            <PainelLineChartGrouped
-              title="Óbitos por causa base DNC"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieByCidDncGrouped"
-              :url.sync="urlSerie"
-              :grouped="groupedCidsDnc"
-            ></PainelLineChartGrouped>
-          </client-only>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-        <div>
-          <client-only>
-            <PainelBarChartAgePyramid
-              title="Pirâmide etária infantil"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieByIdadInfantil"
-              :url.sync="urlSerieRange"
-            ></PainelBarChartAgePyramid>
-          </client-only>
-        </div>
-        <div>
-          <client-only>
-            <PainelDonutChartRanger
-              title="Por estado civil"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieByCivil"
-              :url.sync="urlSerieRange"
-              palette="pastels"
-            ></PainelDonutChartRanger>
-          </client-only>
+        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+          <div>
+            <client-only>
+              <LazyPainelBarChartAgePyramid
+                title="Pirâmide etária infantil"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieByIdadInfantil"
+                :url.sync="urlSerieRange"
+                @loadend="incrementLoad"
+              ></LazyPainelBarChartAgePyramid>
+            </client-only>
+          </div>
+          <div>
+            <client-only>
+              <LazyPainelDonutChartRanger
+                title="Por estado civil"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieByCivil"
+                :url.sync="urlSerieRange"
+                palette="pastels"
+                @loadend="incrementLoad"
+              ></LazyPainelDonutChartRanger>
+            </client-only>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </Overlay>
 </template>
 <script>
 import filters from '@/mixins/filters';
@@ -202,6 +212,9 @@ export default {
         term_filter: ['418', '9'],
         operator_filter: ['>=', '!='],
       },
+      loading: true,
+      countLoading: 0,
+      limitLoading: 7,
     };
   },
   async fetch() {
@@ -250,6 +263,13 @@ export default {
       );
       this.paramsSerieByCivil = this.setFilters(this.paramsSerieByCivil);
     },
+    incrementLoad() {
+      this.countLoading++;
+      if (this.countLoading === this.limitLoading) {
+        this.countLoading = 0;
+        this.loading = false;
+      }
+    }
   },
 };
 </script>

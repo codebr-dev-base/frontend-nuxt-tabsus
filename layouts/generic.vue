@@ -52,7 +52,7 @@ export default {
 }
 
 .content {
-  @apply flex-auto min-h-full	flex flex-col;
+  @apply flex-auto	flex flex-col;
 }
 
 .footer {

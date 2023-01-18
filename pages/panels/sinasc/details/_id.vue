@@ -1,124 +1,134 @@
 <template>
-  <div class="content">
-    <div>
-      <PainelNavbar :location="initial">
-        <template #start>
-          {{ locationName }}
-        </template>
-        <template #end>
-          <NuxtLink
-            :to="`/panels/${module}/map/${id}`"
-            class="btn btn-sm btn-secondary text-center align-middle"
-          >
-            <fa-icon
-              :icon="['far', 'map']"
-              class="icon-menu w-4 h-4 stroke-current"
-            />
-          </NuxtLink>
-        </template>
-      </PainelNavbar>
-      <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-        <div>
-          <client-only>
-            <PainelBarChartPaginate
-              title="Nascidos vivos por unidade "
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsHealthUnits"
-              :url.sync="urlSerie"
-            ></PainelBarChartPaginate>
-          </client-only>
+  <Overlay :show="loading">
+    <div class="content">
+      <div>
+        <LazyPainelNavbar :location="initial">
+          <template #start>
+            {{ locationName }}
+          </template>
+          <template #end>
+            <NuxtLink
+              :to="`/panels/${module}/map/${id}`"
+              class="btn btn-sm btn-secondary text-center align-middle"
+            >
+              <fa-icon
+                :icon="['far', 'map']"
+                class="icon-menu w-4 h-4 stroke-current"
+              />
+            </NuxtLink>
+          </template>
+        </LazyPainelNavbar>
+        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+          <div>
+            <client-only>
+              <LazyPainelBarChartPaginate
+                title="Nascidos vivos por unidade "
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsHealthUnits"
+                :url.sync="urlSerie"
+                @loadend="incrementLoad"
+              ></LazyPainelBarChartPaginate>
+            </client-only>
+          </div>
+          <div>
+            <client-only>
+              <LazyPainelBarChartPaginate
+                title="Nascidos vivos por CBO da mãe "
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieCbo"
+                :url.sync="urlSerie"
+                @loadend="incrementLoad"
+              ></LazyPainelBarChartPaginate>
+            </client-only>
+          </div>
         </div>
-        <div>
-          <client-only>
-            <PainelBarChartPaginate
-              title="Nascidos vivos por CBO da mãe "
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieCbo"
-              :url.sync="urlSerie"
-            ></PainelBarChartPaginate>
-          </client-only>
+        <div class="grid grid-cols-1 gap-1 md:grid-cols-4 md:gap-4">
+          <div class="md:col-span-2 md:row-span-2">
+            <client-only>
+              <LazyPainelBarChartRanger
+                title="Idade da mãe"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieByIdademae"
+                :url.sync="urlSerieRange"
+                palette="metro"
+                @loadend="incrementLoad"
+              ></LazyPainelBarChartRanger>
+            </client-only>
+          </div>
+          <div>
+            <client-only>
+              <LazyPainelDonutChartRanger
+                title="Tipo de gravidez"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieGravidez"
+                :url.sync="urlSerieRange"
+                palette="pastels"
+                @loadend="incrementLoad"
+              ></LazyPainelDonutChartRanger>
+            </client-only>
+          </div>
+          <div>
+            <client-only>
+              <LazyPainelDonutChartRanger
+                title="Tipo de parto"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieParto"
+                :url.sync="urlSerieRange"
+                palette="pastels"
+                @loadend="incrementLoad"
+              ></LazyPainelDonutChartRanger>
+            </client-only>
+          </div>
         </div>
-      </div>
-      <div class="grid grid-cols-1 gap-1 md:grid-cols-4 md:gap-4">
-        <div class="md:col-span-2 md:row-span-2">
-          <client-only>
-            <PainelBarChartRanger
-              title="Idade da mãe"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieByIdademae"
-              :url.sync="urlSerieRange"
-              palette="metro"
-            ></PainelBarChartRanger>
-          </client-only>
-        </div>
-        <div>
-          <client-only>
-            <PainelDonutChartRanger
-              title="Tipo de gravidez"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieGravidez"
-              :url.sync="urlSerieRange"
-              palette="pastels"
-            ></PainelDonutChartRanger>
-          </client-only>
-        </div>
-        <div>
-          <client-only>
-            <PainelDonutChartRanger
-              title="Tipo de parto"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieParto"
-              :url.sync="urlSerieRange"
-              palette="pastels"
-            ></PainelDonutChartRanger>
-          </client-only>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 gap-1 md:grid-cols-4 md:gap-4">
-        <div>
-          <client-only>
-            <PainelDonutChartRanger
-              title="Por peso do RN"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSeriePeso"
-              :url.sync="urlSerieRange"
-              palette="pastels"
-            ></PainelDonutChartRanger>
-          </client-only>
-        </div>
-        <div>
-          <client-only>
-            <PainelDonutChartRanger
-              title="Por estado civil da mãe"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieEstadoCivil"
-              :url.sync="urlSerieRange"
-              palette="pastels"
-            ></PainelDonutChartRanger>
-          </client-only>
-        </div>
-        <div>
-          <client-only>
-            <PainelPolarChart
-              title="Número de consultas pre-natal"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieConsultas"
-              :url.sync="urlSerie"
-              palette="pastels"
-            ></PainelPolarChart>
-          </client-only>
+        <div class="grid grid-cols-1 gap-1 md:grid-cols-4 md:gap-4">
+          <div>
+            <client-only>
+              <LazyPainelDonutChartRanger
+                title="Por peso do RN"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSeriePeso"
+                :url.sync="urlSerieRange"
+                palette="pastels"
+                @loadend="incrementLoad"
+              ></LazyPainelDonutChartRanger>
+            </client-only>
+          </div>
+          <div>
+            <client-only>
+              <LazyPainelDonutChartRanger
+                title="Por estado civil da mãe"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieEstadoCivil"
+                :url.sync="urlSerieRange"
+                palette="pastels"
+                @loadend="incrementLoad"
+              ></LazyPainelDonutChartRanger>
+            </client-only>
+          </div>
+          <div>
+            <client-only>
+              <LazyPainelPolarChart
+                title="Número de consultas pre-natal"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieConsultas"
+                :url.sync="urlSerie"
+                palette="pastels"
+                @loadend="incrementLoad"
+              ></LazyPainelPolarChart>
+            </client-only>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </Overlay>
 </template>
 <script>
 import filters from '@/mixins/filters';
@@ -188,6 +198,9 @@ export default {
         rating: 'contador',
         per_page: '15',
       },
+      loading: true,
+      countLoading: 0,
+      limitLoading: 8,
     };
   },
   async fetch() {
@@ -230,6 +243,13 @@ export default {
       );
       this.paramsSerieConsultas = this.setFilters(this.paramsSerieConsultas);
     },
+    incrementLoad() {
+      this.countLoading++;
+      if (this.countLoading === this.limitLoading) {
+        this.countLoading = 0;
+        this.loading = false;
+      }
+    }
   },
 };
 </script>

@@ -1,101 +1,107 @@
 <template>
-  <div class="drawer drawer-end">
-    <input id="filter-drawer" type="checkbox" class="drawer-toggle" />
-    <div class="drawer-content">
-      <div>
-        <PainelNavbar
-          :location="initial"
-          :locations="locations"
-          @changeLocation="changeLocationState"
-        >
-          <template #end>
-            <label for="filter-drawer" class="btn btn-ghost drawer-button">
-              <fa-icon icon="filter" class="icon-menu" />
-            </label>
-          </template>
-        </PainelNavbar>
+  <Overlay :show="loading">
+    <div class="drawer drawer-end">
+      <input id="filter-drawer" type="checkbox" class="drawer-toggle" />
+      <div class="drawer-content">
+        <div>
+          <LazyPainelNavbar
+            :location="initial"
+            :locations="locations"
+            @changeLocation="changeLocationState"
+          >
+            <template #end>
+              <label for="filter-drawer" class="btn btn-ghost drawer-button">
+                <fa-icon icon="filter" class="icon-menu" />
+              </label>
+            </template>
+          </LazyPainelNavbar>
+          <div
+            class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2 lg:grid-cols-3 lg:gap-3"
+          >
+            <div>
+              <LazyPainelCardDatasets
+                ref="cardDatasets"
+                :title="locationName"
+                :url.sync="url"
+                sort="year"
+                system="sinasc"
+                :params.sync="paramsDatasets"
+                @checked="changeDatasets"
+                @loadend="incrementLoad"
+              ></LazyPainelCardDatasets>
+            </div>
+            <div>
+              <client-only>
+                <LazyPainelBarChartDataset
+                  title="Total de nascidos vivos: "
+                  :datasets.sync="checkedDatasets"
+                  :location-name.sync="locationName"
+                ></LazyPainelBarChartDataset>
+              </client-only>
+            </div>
+            <div>
+              <client-only>
+                <LazyPainelBarChartGrouped
+                  ref="serieByGrouped"
+                  title="Nascidos por sexo: "
+                  :datasets.sync="checkedDatasets"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieBySexo"
+                  :url.sync="urlSerieRange"
+                  @loadend="incrementLoad"
+                ></LazyPainelBarChartGrouped>
+              </client-only>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+            <div>
+              <client-only>
+                <LazyPainelLineChart
+                  ref="serieByMonth"
+                  title="Nascidos vivos por mês: "
+                  :datasets.sync="checkedDatasets"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieByMonth"
+                  :url.sync="urlSerie"
+                  @loadend="incrementLoad"
+                ></LazyPainelLineChart>
+              </client-only>
+            </div>
+            <div>
+              <client-only>
+                <LazyPainelAreaChart
+                  ref="serieByMonth"
+                  title="Nascidos com mal formação por mês: "
+                  :datasets.sync="checkedDatasets"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieByAnomal"
+                  :url.sync="urlSerie"
+                  @loadend="incrementLoad"
+                ></LazyPainelAreaChart>
+              </client-only>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="drawer-side">
+        <label for="filter-drawer" class="drawer-overlay"></label>
         <div
-          class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2 lg:grid-cols-3 lg:gap-3"
+          class="card text-center shadow-2xl w-11/12 menu overflow-y-auto bg-base-100 text-base-content"
         >
-          <div>
-            <PainelCardDatasets
-              ref="cardDatasets"
-              :title="locationName"
-              :url.sync="url"
-              sort="year"
-              system="sinasc"
-              :params.sync="paramsDatasets"
-              @checked="changeDatasets"
-            ></PainelCardDatasets>
-          </div>
-          <div>
-            <client-only>
-              <PainelBarChartDataset
-                title="Total de nascidos vivos: "
-                :datasets.sync="checkedDatasets"
-                :location-name.sync="locationName"
-              ></PainelBarChartDataset>
-            </client-only>
-          </div>
-          <div>
-            <client-only>
-              <PainelBarChartGrouped
-                ref="serieByGrouped"
-                title="Nascidos por sexo: "
-                :datasets.sync="checkedDatasets"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieBySexo"
-                :url.sync="urlSerieRange"
-              ></PainelBarChartGrouped>
-            </client-only>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-          <div>
-            <client-only>
-              <PainelLineChart
-                ref="serieByMonth"
-                title="Nascidos vivos por mês: "
-                :datasets.sync="checkedDatasets"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieByMonth"
-                :url.sync="urlSerie"
-              ></PainelLineChart>
-            </client-only>
-          </div>
-          <div>
-            <client-only>
-              <PainelAreaChart
-                ref="serieByMonth"
-                title="Nascidos com mal formação por mês: "
-                :datasets.sync="checkedDatasets"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieByAnomal"
-                :url.sync="urlSerie"
-              ></PainelAreaChart>
-            </client-only>
+          <div class="card-body grid grid-cols-1 gap-1">
+            <LazyPainelTableCities
+              ref="tableCities"
+              :initial.sync="initial"
+              :name.sync="name"
+              painel="sinasc"
+              :options-scope-location.sync="optionsScopeLocation"
+              @changeLocation="changeLocationFilter"
+            ></LazyPainelTableCities>
           </div>
         </div>
       </div>
     </div>
-    <div class="drawer-side">
-      <label for="filter-drawer" class="drawer-overlay"></label>
-      <div
-        class="card text-center shadow-2xl w-11/12 menu overflow-y-auto bg-base-100 text-base-content p-1"
-      >
-        <div class="card-body grid grid-cols-1 gap-1">
-          <PainelTableCities
-            ref="tableCities"
-            :initial.sync="initial"
-            :name.sync="name"
-            painel="sinasc"
-            :options-scope-location.sync="optionsScopeLocation"
-            @changeLocation="changeLocationFilter"
-          ></PainelTableCities>
-        </div>
-      </div>
-    </div>
-  </div>
+  </Overlay>
 </template>
 <script>
 import filters from '@/mixins/filters';
@@ -123,7 +129,6 @@ export default {
         { name: 'Residêntes', value: 'codmunres' },
         { name: 'Ocorrência', value: 'codmunnasc' },
       ],
-      loading: false,
       urlBase: `v1/dataset/datasus/sinasc/`,
       urlBaseSerie: `v1/dataset/serie/datasus/sinasc/`,
       urlBaseSerieRange: `v1/dataset/serie/range/datasus/sinasc/`,
@@ -170,6 +175,9 @@ export default {
         per_page: 12,
         page: 1,
       },
+      loading: true,
+      countLoading: 0,
+      limitLoading: 3,
     };
   },
   computed: {},
@@ -221,10 +229,11 @@ export default {
       this.setAllFilters();
     },
     changeDatasets(checkedDatasets) {
+      this.loading = true;
       this.checkedDatasets = checkedDatasets;
     },
     setFilters(params) {
-      params = this.setFiltersLocation(params, this.module );
+      params = this.setFiltersLocation(params, this.module);
 
       return { ...params };
     },
@@ -234,6 +243,19 @@ export default {
       this.paramsSerieBySexo = this.setFilters(this.paramsSerieBySexo);
       this.paramsSerieByAnomal = this.setFilters(this.paramsSerieByAnomal);
     },
+    incrementLoad() {
+      this.countLoading++;
+      if (this.countLoading === this.limitLoading) {
+        this.countLoading = 0;
+        this.loading = false;
+      }
+    },
   },
 };
 </script>
+
+<style lang="postcss" scoped>
+.drawer {
+  height: fit-content;
+}
+</style>

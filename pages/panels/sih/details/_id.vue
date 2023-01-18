@@ -1,124 +1,133 @@
 <template>
-  <div class="content">
-    <div>
-      <PainelNavbar :location="initial">
-        <template #start>
-          {{ locationName }}
-        </template>
-        <template #end>
-          <NuxtLink
-            :to="`/panels/${module}/rejected/${id}`"
-            class="btn btn-sm btn-accent text-center align-middle mr-1"
-          >
-            AIH Rejeitadas
-          </NuxtLink>
-          <NuxtLink
-            :to="`/panels/${module}/map/${id}`"
-            class="btn btn-sm btn-secondary text-center align-middle"
-          >
-            <fa-icon
-              :icon="['far', 'map']"
-              class="icon-menu w-4 h-4 stroke-current"
-            />
-          </NuxtLink>
-        </template>
-      </PainelNavbar>
-      <div class="grid grid-cols-1 gap-1">
-        <div>
-          <client-only>
-            <PainelBarChartPaginate
-              title="Número AIH com pagamento recusado"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsRejectedCount"
-              :url.sync="urlSerie"
-            ></PainelBarChartPaginate>
-          </client-only>
+  <Overlay :show="loading">
+    <div class="content">
+      <div>
+        <LazyPainelNavbar :location="initial">
+          <template #start>
+            {{ locationName }}
+          </template>
+          <template #end>
+            <NuxtLink
+              :to="`/panels/${module}/rejected/${id}`"
+              class="btn btn-sm btn-accent text-center align-middle mr-1"
+            >
+              AIH Rejeitadas
+            </NuxtLink>
+            <NuxtLink
+              :to="`/panels/${module}/map/${id}`"
+              class="btn btn-sm btn-secondary text-center align-middle"
+            >
+              <fa-icon
+                :icon="['far', 'map']"
+                class="icon-menu w-4 h-4 stroke-current"
+              />
+            </NuxtLink>
+          </template>
+        </LazyPainelNavbar>
+        <div class="grid grid-cols-1 gap-1">
+          <div>
+            <client-only>
+              <LazyPainelBarChartPaginate
+                title="Número AIH com pagamento recusado"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsRejectedCount"
+                :url.sync="urlSerie"
+                @loadend="incrementLoad"
+              ></LazyPainelBarChartPaginate>
+            </client-only>
+          </div>
         </div>
-      </div>
-      <div class="grid grid-cols-1 gap-1">
-        <div>
-          <client-only>
-            <PainelBarChartPaginate
-              title="Valor AIH com pagamento recusado"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsRejectedSum"
-              :url.sync="urlSerie"
-              operation="sum"
-              :formatter-value="formatterCurrency"
-            ></PainelBarChartPaginate>
-          </client-only>
+        <div class="grid grid-cols-1 gap-1">
+          <div>
+            <client-only>
+              <LazyPainelBarChartPaginate
+                title="Valor AIH com pagamento recusado"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsRejectedSum"
+                :url.sync="urlSerie"
+                operation="sum"
+                :formatter-value="formatterCurrency"
+                @loadend="incrementLoad"
+              ></LazyPainelBarChartPaginate>
+            </client-only>
+          </div>
         </div>
-      </div>
-      <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-        <div>
-          <client-only>
-            <PainelBarChartPaginate
-              title="AIH por Diagnóstico Principal"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieByCid"
-              :url.sync="urlSerie"
-              @change="changeCids"
-            ></PainelBarChartPaginate>
-          </client-only>
+        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+          <div>
+            <client-only>
+              <LazyPainelBarChartPaginate
+                title="AIH por Diagnóstico Principal"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieByCid"
+                :url.sync="urlSerie"
+                @change="changeCids"
+                @loadend="incrementLoad"
+              ></LazyPainelBarChartPaginate>
+            </client-only>
+          </div>
+          <div>
+            <client-only>
+              <LazyPainelLineChartGrouped
+                title="AIH por Diagnóstico Principal"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieByCidGrouped"
+                :url.sync="urlSerie"
+                :grouped="groupedCids"
+                @loadend="incrementLoad"
+              ></LazyPainelLineChartGrouped>
+            </client-only>
+          </div>
         </div>
-        <div>
-          <client-only>
-            <PainelLineChartGrouped
-              title="AIH por Diagnóstico Principal"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieByCidGrouped"
-              :url.sync="urlSerie"
-              :grouped="groupedCids"
-            ></PainelLineChartGrouped>
-          </client-only>
+        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+          <div>
+            <client-only>
+              <LazyPainelBarChartPaginate
+                title="AIH por Diagnóstico Principal DNC"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieByCidDnc"
+                :url.sync="urlSerie"
+                @change="changeCidsDnc"
+                @loadend="incrementLoad"
+              ></LazyPainelBarChartPaginate>
+            </client-only>
+          </div>
+          <div>
+            <client-only>
+              <LazyPainelLineChartGrouped
+                title="AIH por Diagnóstico Principal DNC"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieByCidDncGrouped"
+                :url.sync="urlSerie"
+                :grouped="groupedCidsDnc"
+                @loadend="incrementLoad"
+              ></LazyPainelLineChartGrouped>
+            </client-only>
+          </div>
         </div>
-      </div>
-      <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-        <div>
-          <client-only>
-            <PainelBarChartPaginate
-              title="AIH por Diagnóstico Principal DNC"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieByCidDnc"
-              :url.sync="urlSerie"
-              @change="changeCidsDnc"
-            ></PainelBarChartPaginate>
-          </client-only>
-        </div>
-        <div>
-          <client-only>
-            <PainelLineChartGrouped
-              title="AIH por Diagnóstico Principal DNC"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieByCidDncGrouped"
-              :url.sync="urlSerie"
-              :grouped="groupedCidsDnc"
-            ></PainelLineChartGrouped>
-          </client-only>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-        <div>
-          <client-only>
-            <PainelBarChartAgePyramid
-              title="Pirâmide etária"
-              :dataset.sync="dataset"
-              :location-name.sync="locationName"
-              :params.sync="paramsSerieByIdade"
-              :url.sync="urlSerieRange"
-              :code-sex="{ male: '1', female: '3' }"
-            ></PainelBarChartAgePyramid>
-          </client-only>
+        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+          <div>
+            <client-only>
+              <LazyPainelBarChartAgePyramid
+                title="Pirâmide etária"
+                :dataset.sync="dataset"
+                :location-name.sync="locationName"
+                :params.sync="paramsSerieByIdade"
+                :url.sync="urlSerieRange"
+                :code-sex="{ male: '1', female: '3' }"
+                @loadend="incrementLoad"
+              ></LazyPainelBarChartAgePyramid>
+            </client-only>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </Overlay>
 </template>
 <script>
 import filters from '@/mixins/filters';
@@ -191,6 +200,9 @@ export default {
         per_page: 10,
         page: 1,
       },
+      loading: true,
+      countLoading: 0,
+      limitLoading: 7,
     };
   },
   async fetch() {
@@ -246,6 +258,13 @@ export default {
             currency: 'BRL',
           })
         );
+      }
+    },
+    incrementLoad() {
+      this.countLoading++;
+      if (this.countLoading === this.limitLoading) {
+        this.countLoading = 0;
+        this.loading = false;
       }
     },
   },

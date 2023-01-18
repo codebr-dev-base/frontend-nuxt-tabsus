@@ -1,228 +1,240 @@
 <template>
-  <div class="drawer drawer-end">
-    <input id="filter-drawer" type="checkbox" class="drawer-toggle" />
-    <div class="drawer-content">
-      <div>
-        <PainelNavbar
-          :location="initial"
-          :locations="locations"
-          @changeLocation="changeLocationState"
-        >
-          <template #end>
-            <label for="filter-drawer" class="btn btn-ghost drawer-button">
-              <fa-icon icon="filter" class="icon-menu" />
-            </label>
-          </template>
-        </PainelNavbar>
+  <Overlay :show="loading">
+    <div class="drawer drawer-end">
+      <input id="filter-drawer" type="checkbox" class="drawer-toggle" />
+      <div class="drawer-content">
+        <div>
+          <LazyPainelNavbar
+            :location="initial"
+            :locations="locations"
+            @changeLocation="changeLocationState"
+          >
+            <template #end>
+              <label for="filter-drawer" class="btn btn-ghost drawer-button">
+                <fa-icon icon="filter" class="icon-menu" />
+              </label>
+            </template>
+          </LazyPainelNavbar>
+          <div
+            class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2 lg:grid-cols-3 lg:gap-3"
+          >
+            <div>
+              <LazyPainelCardDatasets
+                ref="cardDatasets"
+                :title.sync="locationName"
+                :url.sync="url"
+                sort="year"
+                system="sim"
+                :params.sync="paramsDatasets"
+                @checked="changeDatasets"
+                @loadend="incrementLoad"
+              ></LazyPainelCardDatasets>
+            </div>
+            <div>
+              <client-only>
+                <LazyPainelBarChartDataset
+                  title="Total de óbitos: "
+                  :datasets.sync="checkedDatasets"
+                  :location-name.sync="locationName"
+                ></LazyPainelBarChartDataset>
+              </client-only>
+            </div>
+            <div>
+              <client-only>
+                <LazyPainelBarChartGrouped
+                  ref="serieByGrouped"
+                  title="Óbitos por sexo: "
+                  :datasets.sync="checkedDatasets"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieBySexo"
+                  :url.sync="urlSerieRange"
+                  @loadend="incrementLoad"
+                ></LazyPainelBarChartGrouped>
+              </client-only>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-1">
+            <div>
+              <client-only>
+                <LazyPainelLineChart
+                  ref="serieByMonth"
+                  title="Óbitos por mês: "
+                  :datasets.sync="checkedDatasets"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieByMonth"
+                  :url.sync="urlSerie"
+                  @loadend="incrementLoad"
+                ></LazyPainelLineChart>
+              </client-only>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+            <div>
+              <client-only>
+                <LazyPainelBarChartDataset
+                  title="Total de óbitos causas externas: "
+                  :datasets.sync="checkedDatasetExts"
+                  :location-name.sync="locationName"
+                ></LazyPainelBarChartDataset>
+              </client-only>
+            </div>
+            <div>
+              <client-only>
+                <LazyPainelBarChartGrouped
+                  ref="serieByGrouped"
+                  title="Óbitos causas externas por sexo: "
+                  :datasets.sync="checkedDatasetExts"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieBySexo"
+                  :url.sync="urlSerieRange"
+                  @loadend="incrementLoad"
+                ></LazyPainelBarChartGrouped>
+              </client-only>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-1">
+            <div>
+              <client-only>
+                <LazyPainelLineChart
+                  ref="serieByMonth"
+                  title="Óbitos causas externas por mês: "
+                  :datasets.sync="checkedDatasetExts"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieByMonth"
+                  :url.sync="urlSerie"
+                  @loadend="incrementLoad"
+                ></LazyPainelLineChart>
+              </client-only>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+            <div>
+              <client-only>
+                <LazyPainelBarChartDataset
+                  title="Total de óbitos fetais: "
+                  :datasets.sync="checkedDatasetFets"
+                  :location-name.sync="locationName"
+                ></LazyPainelBarChartDataset>
+              </client-only>
+            </div>
+            <div>
+              <client-only>
+                <LazyPainelBarChartGrouped
+                  ref="serieByGrouped"
+                  title="Óbitos fetais por sexo: "
+                  :datasets.sync="checkedDatasetFets"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieBySexo"
+                  :url.sync="urlSerieRange"
+                  @loadend="incrementLoad"
+                ></LazyPainelBarChartGrouped>
+              </client-only>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-1">
+            <div>
+              <client-only>
+                <LazyPainelLineChart
+                  ref="serieByMonth"
+                  title="Óbitos fetais por mês: "
+                  :datasets.sync="checkedDatasetFets"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieByMonth"
+                  :url.sync="urlSerie"
+                  @loadend="incrementLoad"
+                ></LazyPainelLineChart>
+              </client-only>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+            <div>
+              <client-only>
+                <LazyPainelBarChartDataset
+                  title="Total de óbitos infantil: "
+                  :datasets.sync="checkedDatasetInfs"
+                  :location-name.sync="locationName"
+                ></LazyPainelBarChartDataset>
+              </client-only>
+            </div>
+            <div>
+              <client-only>
+                <LazyPainelBarChartGrouped
+                  ref="serieByGrouped"
+                  title="Óbitos infantil por sexo: "
+                  :datasets.sync="checkedDatasetInfs"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieBySexo"
+                  :url.sync="urlSerieRange"
+                  @loadend="incrementLoad"
+                ></LazyPainelBarChartGrouped>
+              </client-only>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-1">
+            <div>
+              <client-only>
+                <LazyPainelLineChart
+                  ref="serieByMonth"
+                  title="Óbitos infantil por mês: "
+                  :datasets.sync="checkedDatasetInfs"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieByMonth"
+                  :url.sync="urlSerie"
+                  @loadend="incrementLoad"
+                ></LazyPainelLineChart>
+              </client-only>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+            <div>
+              <client-only>
+                <LazyPainelBarChartDataset
+                  title="Total de óbitos Materno: "
+                  :datasets.sync="checkedDatasetMats"
+                  :location-name.sync="locationName"
+                ></LazyPainelBarChartDataset>
+              </client-only>
+            </div>
+            <div>
+              <client-only>
+                <LazyPainelLineChart
+                  ref="serieByMonth"
+                  title="Óbitos Materno por mês: "
+                  :datasets.sync="checkedDatasetMats"
+                  :location-name.sync="locationName"
+                  :params.sync="paramsSerieByMonth"
+                  :url.sync="urlSerie"
+                  @loadend="incrementLoad"
+                ></LazyPainelLineChart>
+              </client-only>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="drawer-side">
+        <label for="filter-drawer" class="drawer-overlay"></label>
         <div
-          class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2 lg:grid-cols-3 lg:gap-3"
+          class="card text-center shadow-2xl w-11/12 menu overflow-y-auto bg-base-100 text-base-content p-1"
         >
-          <div>
-            <PainelCardDatasets
-              ref="cardDatasets"
-              :title.sync="locationName"
-              :url.sync="url"
-              sort="year"
-              system="sim"
-              :params.sync="paramsDatasets"
-              @checked="changeDatasets"
-            ></PainelCardDatasets>
-          </div>
-          <div>
-            <client-only>
-              <PainelBarChartDataset
-                title="Total de óbitos: "
-                :datasets.sync="checkedDatasets"
-                :location-name.sync="locationName"
-              ></PainelBarChartDataset>
-            </client-only>
-          </div>
-          <div>
-            <client-only>
-              <PainelBarChartGrouped
-                ref="serieByGrouped"
-                title="Óbitos por sexo: "
-                :datasets.sync="checkedDatasets"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieBySexo"
-                :url.sync="urlSerieRange"
-              ></PainelBarChartGrouped>
-            </client-only>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-1">
-          <div>
-            <client-only>
-              <PainelLineChart
-                ref="serieByMonth"
-                title="Óbitos por mês: "
-                :datasets.sync="checkedDatasets"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieByMonth"
-                :url.sync="urlSerie"
-              ></PainelLineChart>
-            </client-only>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-          <div>
-            <client-only>
-              <PainelBarChartDataset
-                title="Total de óbitos causas externas: "
-                :datasets.sync="checkedDatasetExts"
-                :location-name.sync="locationName"
-              ></PainelBarChartDataset>
-            </client-only>
-          </div>
-          <div>
-            <client-only>
-              <PainelBarChartGrouped
-                ref="serieByGrouped"
-                title="Óbitos causas externas por sexo: "
-                :datasets.sync="checkedDatasetExts"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieBySexo"
-                :url.sync="urlSerieRange"
-              ></PainelBarChartGrouped>
-            </client-only>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-1">
-          <div>
-            <client-only>
-              <PainelLineChart
-                ref="serieByMonth"
-                title="Óbitos causas externas por mês: "
-                :datasets.sync="checkedDatasetExts"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieByMonth"
-                :url.sync="urlSerie"
-              ></PainelLineChart>
-            </client-only>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-          <div>
-            <client-only>
-              <PainelBarChartDataset
-                title="Total de óbitos fetais: "
-                :datasets.sync="checkedDatasetFets"
-                :location-name.sync="locationName"
-              ></PainelBarChartDataset>
-            </client-only>
-          </div>
-          <div>
-            <client-only>
-              <PainelBarChartGrouped
-                ref="serieByGrouped"
-                title="Óbitos fetais por sexo: "
-                :datasets.sync="checkedDatasetFets"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieBySexo"
-                :url.sync="urlSerieRange"
-              ></PainelBarChartGrouped>
-            </client-only>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-1">
-          <div>
-            <client-only>
-              <PainelLineChart
-                ref="serieByMonth"
-                title="Óbitos fetais por mês: "
-                :datasets.sync="checkedDatasetFets"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieByMonth"
-                :url.sync="urlSerie"
-              ></PainelLineChart>
-            </client-only>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-          <div>
-            <client-only>
-              <PainelBarChartDataset
-                title="Total de óbitos infantil: "
-                :datasets.sync="checkedDatasetInfs"
-                :location-name.sync="locationName"
-              ></PainelBarChartDataset>
-            </client-only>
-          </div>
-          <div>
-            <client-only>
-              <PainelBarChartGrouped
-                ref="serieByGrouped"
-                title="Óbitos infantil por sexo: "
-                :datasets.sync="checkedDatasetInfs"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieBySexo"
-                :url.sync="urlSerieRange"
-              ></PainelBarChartGrouped>
-            </client-only>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-1">
-          <div>
-            <client-only>
-              <PainelLineChart
-                ref="serieByMonth"
-                title="Óbitos infantil por mês: "
-                :datasets.sync="checkedDatasetInfs"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieByMonth"
-                :url.sync="urlSerie"
-              ></PainelLineChart>
-            </client-only>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-          <div>
-            <client-only>
-              <PainelBarChartDataset
-                title="Total de óbitos Materno: "
-                :datasets.sync="checkedDatasetMats"
-                :location-name.sync="locationName"
-              ></PainelBarChartDataset>
-            </client-only>
-          </div>
-          <div>
-            <client-only>
-              <PainelLineChart
-                ref="serieByMonth"
-                title="Óbitos Materno por mês: "
-                :datasets.sync="checkedDatasetMats"
-                :location-name.sync="locationName"
-                :params.sync="paramsSerieByMonth"
-                :url.sync="urlSerie"
-              ></PainelLineChart>
-            </client-only>
+          <div class="card-body grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
+            <LazyPainelTableCities
+              ref="tableCities"
+              :initial.sync="initial"
+              :name.sync="name"
+              painel="sim"
+              :options-scope-location.sync="optionsScopeLocation"
+              @changeLocation="changeLocationFilter"
+            ></LazyPainelTableCities>
+            <LazyPainelCardCids
+              :loading.sync="loading"
+              store="sim"
+              @update="setAllFilters"
+            ></LazyPainelCardCids>
           </div>
         </div>
       </div>
     </div>
-    <div class="drawer-side">
-      <label for="filter-drawer" class="drawer-overlay"></label>
-      <div
-        class="card text-center shadow-2xl w-11/12 menu overflow-y-auto bg-base-100 text-base-content p-1"
-      >
-        <div class="card-body grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
-          <PainelTableCities
-            ref="tableCities"
-            :initial.sync="initial"
-            :name.sync="name"
-            painel="sim"
-            :options-scope-location.sync="optionsScopeLocation"
-            @changeLocation="changeLocationFilter"
-          ></PainelTableCities>
-          <PainelCardCids
-            :loading.sync="loading"
-            store="sim"
-            @update="setAllFilters"
-          ></PainelCardCids>
-        </div>
-      </div>
-    </div>
-  </div>
+  </Overlay>
 </template>
 <script>
 import filters from '@/mixins/filters';
@@ -250,7 +262,9 @@ export default {
         { name: 'Residêntes', value: 'codmunres' },
         { name: 'Ocorrência', value: 'codmunocor' },
       ],
-      loading: false,
+      loading: true,
+      countLoading: 0,
+      limitLoading: 9,
       urlBase: `v1/dataset/datasus/sim/`,
       urlBaseExt: `v1/dataset/year/datasus/simext/`,
       urlBaseFet: `v1/dataset/year/datasus/simfet/`,
@@ -348,6 +362,7 @@ export default {
       this.setAllFilters();
     },
     async changeDatasets(checkedDatasets) {
+      this.loading = true;
       this.checkedDatasets = checkedDatasets;
 
       const dataSetExts = [];
@@ -404,6 +419,13 @@ export default {
       this.paramsSerieByMonth = this.setFilters(this.paramsSerieByMonth);
       this.paramsSerieBySexo = this.setFilters(this.paramsSerieBySexo);
     },
+    incrementLoad() {
+      this.countLoading++;
+      if (this.countLoading === this.limitLoading) {
+        this.countLoading = 0;
+        this.loading = false;
+      }
+    }
   },
 };
 </script>
